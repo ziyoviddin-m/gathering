@@ -7,6 +7,8 @@
 
 4) cd gathering
 
-5) pip install -r requirements.txt
+5) cd gathering
+
+6) pip install -r requirements.txt
 
 7) docker-compose up --build

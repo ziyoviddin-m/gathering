@@ -1,0 +1,397 @@
+openapi: 3.0.3
+info:
+  title: Gathering API
+  version: 0.0.0
+paths:
+  /api/v1/collect/{id}/:
+    get:
+      operationId: api_v1_collect_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collect'
+          description: ''
+    put:
+      operationId: api_v1_collect_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Collect'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Collect'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Collect'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collect'
+          description: ''
+    patch:
+      operationId: api_v1_collect_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCollect'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCollect'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCollect'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collect'
+          description: ''
+  /api/v1/collect_delete/{id}/:
+    get:
+      operationId: api_v1_collect_delete_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collect'
+          description: ''
+    delete:
+      operationId: api_v1_collect_delete_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/v1/collects/:
+    get:
+      operationId: api_v1_collects_list
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Collect'
+          description: ''
+    post:
+      operationId: api_v1_collects_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Collect'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Collect'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Collect'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collect'
+          description: ''
+  /api/v1/payment_delete/{id}/:
+    get:
+      operationId: api_v1_payment_delete_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+    delete:
+      operationId: api_v1_payment_delete_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/v1/payments/:
+    get:
+      operationId: api_v1_payments_list
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
+          description: ''
+    post:
+      operationId: api_v1_payments_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Payment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Payment'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+components:
+  schemas:
+    Collect:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        cover_image:
+          type: string
+          format: uri
+        collected_amount:
+          type: string
+          readOnly: true
+        contributors_count:
+          type: string
+          readOnly: true
+        donations:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        occasion:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        planned_amount:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        end_datetime:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        author:
+          type: integer
+      required:
+      - author
+      - collected_amount
+      - contributors_count
+      - cover_image
+      - created_at
+      - description
+      - donations
+      - end_datetime
+      - id
+      - occasion
+      - planned_amount
+      - title
+    PatchedCollect:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        cover_image:
+          type: string
+          format: uri
+        collected_amount:
+          type: string
+          readOnly: true
+        contributors_count:
+          type: string
+          readOnly: true
+        donations:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        occasion:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        planned_amount:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        end_datetime:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        author:
+          type: integer
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          $ref: '#/components/schemas/User'
+        payment_amount:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        date_time_payment:
+          type: string
+          format: date-time
+          readOnly: true
+        collect:
+          type: integer
+      required:
+      - collect
+      - date_time_payment
+      - id
+      - payment_amount
+      - user
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+      required:
+      - full_name
+      - id
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

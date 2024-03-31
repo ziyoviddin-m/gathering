@@ -31,7 +31,7 @@ class CollectSerializer(serializers.ModelSerializer):
         return obj.contributors_count()
 
     def get_donations(self, obj):
-        donations = obj.donations()
+        donations = obj.donations().select_related('user')
         serializer = PaymentSerializer(donations, many=True)
         return serializer.data
         

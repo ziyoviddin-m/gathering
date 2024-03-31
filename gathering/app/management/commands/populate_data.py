@@ -11,18 +11,23 @@ class Command(BaseCommand):
 
         users = []
         for _ in range(50):
-            user = User.objects.create_user(
+            user, created = User.objects.get_or_create(
                 username=fake.user_name(),
-                first_name=fake.first_name(),
-                last_name=fake.last_name(),
-                email=fake.email(),
-                password='password'
+                defaults={
+                    'first_name': fake.first_name(),
+                    'last_name': fake.last_name(),
+                    'email': fake.email(),
+                    'password': 'password'
+                }
             )
+            if created:
+                user.set_password('password')
+                user.save()
             users.append(user)
 
-        for _ in range(5000):
+        for _ in range(20):
             author = fake.random_element(users)
-            collect = Collect.objects.create(
+            collect, created = Collect.objects.get_or_create(
                 author=author,
                 title=fake.sentence(),
                 occasion=fake.word(),
@@ -34,7 +39,7 @@ class Command(BaseCommand):
             for _ in range(fake.random_int(min=1, max=5)):
                 user = fake.random_element(users)
                 payment_amount = fake.random_number(digits=4)
-                Payment.objects.create(
+                Payment.objects.get_or_create(
                     user=user,
                     payment_amount=payment_amount,
                     collect=collect,

@@ -6,92 +6,86 @@ from rest_framework.response import Response
 
 
 
-class CollectAPIList(generics.ListCreateAPIView):
-    queryset = Collect.objects.all()
-    serializer_class = CollectSerializer
+class CachedListCreateAPIView(generics.ListCreateAPIView):
+    cache_timeout = 60
+    cache_key_prefix = None
 
     def list(self, request, *args, **kwargs):
-        key = 'collect_list'
+        key = self.get_cache_key('list')
         data = cache.get(key)
         if not data:
             queryset = self.get_queryset()
             serializer = self.get_serializer(queryset, many=True)
             data = serializer.data
-            cache.set(key, data, timeout=60)
+            cache.set(key, data, timeout=self.cache_timeout)
         return Response(data)
-    
+
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
-        cache.delete('collect_list')
+        self.invalidate_cache('list')
         return response
 
+    def get_cache_key(self, action):
+        if self.cache_key_prefix is None:
+            raise NotImplementedError("Необходимо установить атрибут cache_key_prefix")
+        return f'{self.cache_key_prefix}_{action}'
 
-class CollectAPIUpdate(generics.RetrieveUpdateAPIView):
-    queryset = Collect.objects.all()
-    serializer_class = CollectSerializer
+    def invalidate_cache(self, action):
+        cache.delete(self.get_cache_key(action))
+
+
+class CachedRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    cache_timeout = 60
+    cache_key_prefix = None
 
     def retrieve(self, request, *args, **kwargs):
-        key = f'collect_{kwargs["pk"]}'
+        key = self.get_cache_key(kwargs['pk'])
         data = cache.get(key)
         if not data:
             instance = self.get_object()
             serializer = self.get_serializer(instance)
             data = serializer.data
-            cache.set(key, data, timeout=60)
+            cache.set(key, data, timeout=self.cache_timeout)
         return Response(data)
 
     def update(self, request, *args, **kwargs):
-        key = f'collect_{kwargs["pk"]}'
+        key = self.get_cache_key(kwargs['pk'])
         cache.delete(key)
         return super().update(request, *args, **kwargs)
 
-
-class CollectAPIDelete(generics.RetrieveDestroyAPIView):
-    queryset = Collect.objects.all()
-    serializer_class = CollectSerializer
-
     def destroy(self, request, *args, **kwargs):
-        key = f'collect_{kwargs["pk"]}'
-        cache.delete(key) 
-        return super().destroy(request, *args, **kwargs)
-
-
-class PaymentAPIList(generics.ListCreateAPIView):
-    queryset = Payment.objects.all()
-    serializer_class = PaymentSerializer
-
-    def list(self, request, *args, **kwargs):
-        key = 'payment_list'
-        data = cache.get(key)
-        if not data:
-            queryset = self.get_queryset()
-            serializer = self.get_serializer(queryset, many=True)
-            data = serializer.data
-            cache.set(key, data, timeout=60)
-        return Response(data)
-
-    def create(self, request, *args, **kwargs):
-        cache.delete('payment_list') 
-        return super().create(request, *args, **kwargs)
-
-
-class PaymentAPIDelete(generics.RetrieveDestroyAPIView):
-    queryset = Payment.objects.all()
-    serializer_class = PaymentSerializer
-
-    def retrieve(self, request, *args, **kwargs):
-        key = f'payment_{kwargs["pk"]}'
-        data = cache.get(key)
-        if not data:
-            instance = self.get_object()
-            serializer = self.get_serializer(instance)
-            data = serializer.data
-            cache.set(key, data, timeout=60)
-        return Response(data)
-
-    def destroy(self, request, *args, **kwargs):
-        key = f'payment_{kwargs["pk"]}'
+        key = self.get_cache_key(kwargs['pk'])
         cache.delete(key)
-        cache.delete('payment_list')
+        self.invalidate_cache('list')
         return super().destroy(request, *args, **kwargs)
 
+    def get_cache_key(self, pk_or_action):
+        if self.cache_key_prefix is None:
+            raise NotImplementedError("Необходимо установить атрибут cache_key_prefix")
+        return f'{self.cache_key_prefix}_{pk_or_action}'
+
+    def invalidate_cache(self, action):
+        cache.delete(self.get_cache_key(action))
+
+
+class CollectAPIList(CachedListCreateAPIView):
+    queryset = Collect.objects.prefetch_related('payments', 'author').all()
+    serializer_class = CollectSerializer
+    cache_key_prefix = 'collect_list'
+
+
+class CollectAPIUpdate(CachedRetrieveUpdateDestroyAPIView):
+    queryset = Collect.objects.select_related('author').prefetch_related('payments').all()
+    serializer_class = CollectSerializer
+    cache_key_prefix = 'collect'
+
+class PaymentAPIList(CachedListCreateAPIView):
+    queryset = Payment.objects.select_related('user', 'collect').all()
+    serializer_class = PaymentSerializer
+    cache_key_prefix = 'payment_list'
+
+
+class PaymentAPIDelete(CachedRetrieveUpdateDestroyAPIView):
+    queryset = Payment.objects.select_related('user').all()
+    serializer_class = PaymentSerializer
+    cache_key_prefix = 'payment'

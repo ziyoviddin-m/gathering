@@ -6,7 +6,7 @@ from .tasks import send_payment_email, send_collect_email
 
 
 class Collect(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
     title = models.CharField(max_length=255)
     occasion = models.CharField(max_length=100)
     description = models.TextField()
@@ -14,6 +14,9 @@ class Collect(models.Model):
     cover_image = models.ImageField(upload_to='collect_covers/', null=True, blank=True)
     end_datetime = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('author', 'title')
 
     def collected_amount(self):
         return self.payments.aggregate(total_amount=models.Sum('payment_amount'))['total_amount'] or 0
@@ -33,7 +36,7 @@ class Collect(models.Model):
         
 
 class Payment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
     payment_amount = models.PositiveIntegerField()
     date_time_payment = models.DateTimeField(auto_now_add=True)
     collect = models.ForeignKey(Collect, related_name='payments', on_delete=models.CASCADE)

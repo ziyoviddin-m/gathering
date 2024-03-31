@@ -7,8 +7,3 @@
 
 4) docker-compose up --build
 
-Админ:
-
-логин: admin
-
-пароль: 1234
